@@ -1,0 +1,150 @@
+{
+  "data": {
+    "viewer": {
+      "id": "MDQ6VXNlcjMyNjUxOA==",
+      "name": "Diogo Alves",
+      "login": "diogoalves",
+      "avatarUrl": "https://avatars2.githubusercontent.com/u/326518?v=4",
+      "createdAt": "2010-07-08T15:12:13Z",
+      "repositoriesContributedTo": {
+        "totalCount": 3
+      },
+      "following": {
+        "totalCount": 12,
+        "nodes": [
+          {
+            "id": "MDQ6VXNlcjE4ODEzNg==",
+            "name": "Pat Wilson",
+            "login": "ZeroStride",
+            "avatarUrl": "https://avatars2.githubusercontent.com/u/188136?v=4",
+            "createdAt": "2010-01-23T05:43:14Z"
+          },
+          {
+            "id": "MDQ6VXNlcjE5MTc1OA==",
+            "name": "Daniel Shiffman",
+            "login": "shiffman",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/191758?v=4",
+            "createdAt": "2010-01-28T18:58:55Z"
+          },
+          {
+            "id": "MDQ6VXNlcjIxNzYyOA==",
+            "name": "William Durand",
+            "login": "willdurand",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/217628?v=4",
+            "createdAt": "2010-03-07T14:15:48Z"
+          },
+          {
+            "id": "MDQ6VXNlcjI5ODE2OA==",
+            "name": "Jarbas Jácome",
+            "login": "jarbasjacome",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/298168?v=4",
+            "createdAt": "2010-06-06T19:53:34Z"
+          },
+          {
+            "id": "MDQ6VXNlcjM4NzQ3MA==",
+            "name": "Aline Bastos",
+            "login": "alinebastos",
+            "avatarUrl": "https://avatars2.githubusercontent.com/u/387470?v=4",
+            "createdAt": "2010-09-04T12:33:56Z"
+          },
+          {
+            "id": "MDQ6VXNlcjgxMDQzOA==",
+            "name": "Dan Abramov",
+            "login": "gaearon",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/810438?v=4",
+            "createdAt": "2011-05-25T18:18:31Z"
+          },
+          {
+            "id": "MDQ6VXNlcjkzMjE2Mw==",
+            "name": "Yahya",
+            "login": "ya7ya",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/932163?v=4",
+            "createdAt": "2011-07-22T09:37:57Z"
+          },
+          {
+            "id": "MDQ6VXNlcjEzMDg2MjE=",
+            "name": "Kovid Goyal",
+            "login": "kovidgoyal",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/1308621?v=4",
+            "createdAt": "2012-01-06T05:38:24Z"
+          },
+          {
+            "id": "MDQ6VXNlcjUyMTYwNDk=",
+            "name": "Maira Bello",
+            "login": "mairatma",
+            "avatarUrl": "https://avatars3.githubusercontent.com/u/5216049?v=4",
+            "createdAt": "2013-08-12T18:55:47Z"
+          },
+          {
+            "id": "MDQ6VXNlcjYyMjE3OTk=",
+            "name": "",
+            "login": "antoniopresto",
+            "avatarUrl": "https://avatars2.githubusercontent.com/u/6221799?v=4",
+            "createdAt": "2013-12-19T10:09:59Z"
+          },
+          {
+            "id": "MDQ6VXNlcjc0MTY3NjA=",
+            "name": "Rodrigo Hiemer",
+            "login": "rhiemer",
+            "avatarUrl": "https://avatars1.githubusercontent.com/u/7416760?v=4",
+            "createdAt": "2014-04-26T22:23:59Z"
+          },
+          {
+            "id": "MDQ6VXNlcjEwMzQ5OTk0",
+            "name": "Anderson Freitas",
+            "login": "alsfreitas",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/10349994?v=4",
+            "createdAt": "2014-12-30T14:37:49Z"
+          }
+        ]
+      },
+      "followers": {
+        "totalCount": 6,
+        "nodes": [
+          {
+            "id": "MDQ6VXNlcjI5ODE2OA==",
+            "name": "Jarbas Jácome",
+            "login": "jarbasjacome",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/298168?v=4",
+            "createdAt": "2010-06-06T19:53:34Z"
+          },
+          {
+            "id": "MDQ6VXNlcjI1MjA3MDY=",
+            "name": "Nicole Tucker",
+            "login": "pinkrenegade",
+            "avatarUrl": "https://avatars2.githubusercontent.com/u/2520706?v=4",
+            "createdAt": "2012-10-09T14:40:32Z"
+          },
+          {
+            "id": "MDQ6VXNlcjYyMjE3OTk=",
+            "name": "",
+            "login": "antoniopresto",
+            "avatarUrl": "https://avatars2.githubusercontent.com/u/6221799?v=4",
+            "createdAt": "2013-12-19T10:09:59Z"
+          },
+          {
+            "id": "MDQ6VXNlcjY2NzM5ODI=",
+            "name": "Michal Paszkiewicz",
+            "login": "MichalPaszkiewicz",
+            "avatarUrl": "https://avatars3.githubusercontent.com/u/6673982?v=4",
+            "createdAt": "2014-02-13T16:27:56Z"
+          },
+          {
+            "id": "MDQ6VXNlcjc0MTY3NjA=",
+            "name": "Rodrigo Hiemer",
+            "login": "rhiemer",
+            "avatarUrl": "https://avatars1.githubusercontent.com/u/7416760?v=4",
+            "createdAt": "2014-04-26T22:23:59Z"
+          },
+          {
+            "id": "MDQ6VXNlcjExNjAwODIy",
+            "name": "Ronit Sajeey",
+            "login": "ItzLevvie",
+            "avatarUrl": "https://avatars0.githubusercontent.com/u/11600822?v=4",
+            "createdAt": "2015-03-22T18:22:39Z"
+          }
+        ]
+      }
+    }
+  }
+}
