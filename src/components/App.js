@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { InteractiveForceGraph, ForceGraphNode, ForceGraphLink } from 'react-vis-force';
+import {
+  InteractiveForceGraph,
+  ForceGraphNode,
+  ForceGraphLink
+} from 'react-vis-force';
 import { scaleCategory20 } from 'd3-scale';
 
 // import lesMisJSON from './les-miserables.json';
@@ -15,20 +19,32 @@ import './demo-styles.css';
 //   });
 // }
 
-const merge = (a, b, key = 'id') => a.filter( elem => !b.find( subElem => subElem[key] === elem[key])).concat(b);
+const merge = (a, b, key = 'id') =>
+  a.filter(elem => !b.find(subElem => subElem[key] === elem[key])).concat(b);
 
-// TODO ux add photos in circles
+// TODO ADD MATERIAL.UI
+// TODO add a button to login/logout in github
+// TODO add login in github
 // TODO adds graphql
 // TODO adds simple query
 // TODO adds input do change user
 class App extends Component {
   render() {
     const scale = scaleCategory20();
-    const others = merge(graphql.data.viewer.following.nodes, graphql.data.viewer.followers.nodes);
-    console.log(others)
+    const others = merge(
+      graphql.data.viewer.following.nodes,
+      graphql.data.viewer.followers.nodes
+    );
+    console.log(others);
     return (
-      <InteractiveForceGraph  zoom
-      zoomOptions={{minScale: 1, maxScale: 6, onZoom: () => console.log('zoomed'), onPan: () => console.log('panned')}}
+      <InteractiveForceGraph
+        zoom
+        zoomOptions={{
+          minScale: 1,
+          maxScale: 6,
+          onZoom: () => console.log('zoomed'),
+          onPan: () => console.log('panned')
+        }}
         highlightDependencies
         simulationOptions={{ animate: true }}
         onSelectNode={() => console.log('node selected')}
@@ -36,42 +52,74 @@ class App extends Component {
       >
         <defs>
           <filter id="image">
-            <feImage href="https://avatars2.githubusercontent.com/u/326518?v=4"/>
+            <feImage href="https://avatars2.githubusercontent.com/u/326518?v=4" />
           </filter>
         </defs>
 
-    <defs>
-        <clipPath id="circleView">
-            <circle cx="250" cy="125" r="125" fill="#FFFFFF" />            
-        </clipPath>
-    </defs>
-<image width="500" height="250" href="https://avatars2.githubusercontent.com/u/326518?v=4" clipPath="url(#circleView)" />
-    
+        <defs>
+          <pattern
+            id={`avatar-${graphql.data.viewer.id}`}
+            x="0%"
+            y="0%"
+            height="100%"
+            width="100%"
+            viewBox="0 0 512 512"
+          >
+            <image
+              x="0%"
+              y="0%"
+              width="512"
+              height="512"
+              href={graphql.data.viewer.avatarUrl}
+            />
+          </pattern>
+        </defs>
+
+        {others.map(node => (
+          <defs>
+            <pattern
+              id={`avatar-${node.id}`}
+              x="0%"
+              y="0%"
+              height="100%"
+              width="100%"
+              viewBox="0 0 512 512"
+            >
+              <image
+                x="0%"
+                y="0%"
+                width="512"
+                height="512"
+                href={node.avatarUrl}
+              />
+            </pattern>
+          </defs>
+        ))}
 
         <ForceGraphNode
           key={graphql.data.viewer.id}
-          fill={scale(1)}
-          node={{  id: graphql.data.viewer.login, radius: 10, style: 'filter:url(#image);' }}
+          fill={`url(#avatar-${graphql.data.viewer.id})`}
+          node={{ id: graphql.data.viewer.login, radius: 10 }}
         />
 
-        {
-         others.map( node => (
-            <ForceGraphNode
-              key={node.id}
-              fill={scale(3)}
-              node={{ ...node, id: node.login , radius: 5 }}
-            />
-          ))
-        }
+        {others.map(node => (
+          <ForceGraphNode
+            key={node.id}
+            fill={`url(#avatar-${node.id})`}
+            node={{ ...node, id: node.login, radius: 5 }}
+          />
+        ))}
 
-        {
-          others.map( link => (
-            <ForceGraphLink
-              key={`follwoing:${link.login}`}
-              link={{ source: graphql.data.viewer.login, target: link.login , value: 1 }}
-            />
-          ))
-        }
+        {others.map(link => (
+          <ForceGraphLink
+            key={`follwoing:${link.login}`}
+            link={{
+              source: graphql.data.viewer.login,
+              target: link.login,
+              value: 1
+            }}
+          />
+        ))}
 
         {/* {lesMisJSON.nodes.map(node => (
           <ForceGraphNode
