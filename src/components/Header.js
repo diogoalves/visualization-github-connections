@@ -8,8 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import queryString from 'query-string';
-import { isLogged, saveToken, cleanLoggedUser } from '../utils';
-import { OAUTH_CLIENT_ID, OAUTH_SCOPE } from '../constants';
+import { isLogged, cleanLoggedUser, authorize, getAcessToken } from '../utils';
 
 const styles = {
   root: {
@@ -28,15 +27,6 @@ const styles = {
 };
 
 class Header extends Component {
-  handleLogin = () => {
-    const query = queryString.stringify({
-      client_id: OAUTH_CLIENT_ID,
-      scope: OAUTH_SCOPE,
-      redirect_uri: 'https://86731db0.ngrok.io/authenticated'
-    });
-    window.location = `https://github.com/login/oauth/authorize?${query}`;
-  };
-
   handleLogout = () => {
     const { client, history } = this.props;
     cleanLoggedUser();
@@ -48,8 +38,7 @@ class Header extends Component {
     const { location, history } = this.props;
     const { code } = queryString.parse(location.search);
     if (code) {
-      saveToken(code);
-      history.push(`/`);
+      getAcessToken(code, () => history.push(`/`));
     }
   };
 
@@ -82,7 +71,7 @@ class Header extends Component {
             )}
             {!isLogged() && (
               <div>
-                <Button onClick={this.handleLogin} color="inherit">
+                <Button onClick={authorize} color="inherit">
                   Login
                 </Button>
               </div>
