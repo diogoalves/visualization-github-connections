@@ -7,8 +7,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import PopupWindow from './PopupWindow';
-import { isLogged, cleanLoggedUser, toQuery } from '../utils';
+import queryString from 'query-string';
+import { isLogged, saveToken, cleanLoggedUser } from '../utils';
 import { OAUTH_CLIENT_ID, OAUTH_SCOPE } from '../constants';
 
 const styles = {
@@ -29,18 +29,12 @@ const styles = {
 
 class Header extends Component {
   handleLogin = () => {
-    const search = toQuery({
+    const query = queryString.stringify({
       client_id: OAUTH_CLIENT_ID,
       scope: OAUTH_SCOPE,
-      redirect_uri: ''
+      redirect_uri: 'https://86731db0.ngrok.io/authenticated'
     });
-    const popup = (this.popup = PopupWindow.open(
-      'github-oauth-authorize',
-      `https://github.com/login/oauth/authorize?${search}`,
-      { height: 1000, width: 600 }
-    ));
-
-    popup.then(data => console.log(data), error => console.log(error));
+    window.location = `https://github.com/login/oauth/authorize?${query}`;
   };
 
   handleLogout = () => {
@@ -48,6 +42,15 @@ class Header extends Component {
     cleanLoggedUser();
     client.resetStore();
     history.push(`/`);
+  };
+
+  componentDidMount = () => {
+    const { location, history } = this.props;
+    const { code } = queryString.parse(location.search);
+    if (code) {
+      saveToken(code);
+      history.push(`/`);
+    }
   };
 
   render() {
