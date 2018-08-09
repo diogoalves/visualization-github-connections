@@ -20,10 +20,21 @@ const merge = (a, b, key = 'id') =>
   a.filter(elem => !b.find(subElem => subElem[key] === elem[key])).concat(b);
 
 class App extends Component {
+  handleClick = id => () => {
+    console.log(this.props);
+    console.log(`entrou ${id}`);
+  };
+
   render() {
     return (
-      <Query query={NETWORK_QUERY}>
-        {({ loading, error, data }) => {
+      <Query
+        query={NETWORK_QUERY}
+        variables={{
+          first: 1,
+          after: null
+        }}
+      >
+        {({ loading, error, data, fetchMore }) => {
           if (loading) return 'Loading...';
           if (error) return `Error! ${error.message}`;
           const others = merge(
@@ -35,14 +46,9 @@ class App extends Component {
               zoom
               zoomOptions={{
                 minScale: 1,
-                maxScale: 6,
-                onZoom: () => console.log('zoomed'),
-                onPan: () => console.log('panned')
+                maxScale: 6
               }}
-              highlightDependencies
               simulationOptions={{ animate: true }}
-              onSelectNode={() => console.log('node selected')}
-              onDeselectNode={() => console.log('node deselected')}
             >
               <defs>
                 <pattern
@@ -88,6 +94,49 @@ class App extends Component {
                 key={data.viewer.id}
                 fill={`url(#avatar-${data.viewer.id})`}
                 node={{ id: data.viewer.login, radius: 10 }}
+                onClick={() => {
+                  // fetchMore({
+                  //   variables: {
+                  //     offset: data.feed.length
+                  //   },
+                  //   updateQuery: (prev, { fetchMoreResult }) => {
+                  //     if (!fetchMoreResult) return prev;
+                  //     return Object.assign({}, prev, {
+                  //       feed: [...prev.feed, ...fetchMoreResult.feed]
+                  //     });
+                  //   }
+                  // })
+                  console.log(data);
+                  const fetchFollowers =
+                    data.viewer.followers.pageInfo.hasNextPage;
+                  //const fetchFollowing = data.viewer.following.pageInfo.hasNextPage;
+                  if (fetchFollowers) {
+                    fetchMore({
+                      variables: {
+                        first: 5,
+                        after: data.viewer.followers.pageInfo.endCursor
+                      },
+                      updateQuery: (prev, { fetchMoreResult }) => {
+                        if (!fetchMoreResult) return prev;
+                        console.log(prev);
+                        console.log(fetchMoreResult);
+                        return Object.assign({}, prev, {
+                          viewer: {
+                            followers: {
+                              nodes: [
+                                ...prev.viewer.followers.nodes,
+                                ...fetchMoreResult.viewer.followers.nodes
+                              ],
+                              pageInfo:
+                                fetchMoreResult.viewer.followers.pageInfo
+                            }
+                          }
+                        });
+                      }
+                    });
+                  }
+                  this.handleClick(data.viewer.id);
+                }}
               />
 
               {others.map(node => (
@@ -95,6 +144,7 @@ class App extends Component {
                   key={node.id}
                   fill={`url(#avatar-${node.id})`}
                   node={{ ...node, id: node.login, radius: 5 }}
+                  onClick={this.handleClick(node.id)}
                 />
               ))}
 
@@ -117,14 +167,18 @@ class App extends Component {
 }
 
 export const NETWORK_QUERY = gql`
-  {
+  query Network($first: Int, $after: String) {
     viewer {
       id
       login
       name
       avatarUrl
       createdAt
-      followers(first: 10) {
+      followers(first: $first, after: $after) {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
         nodes {
           id
           login
@@ -133,7 +187,11 @@ export const NETWORK_QUERY = gql`
           createdAt
         }
       }
-      following(first: 10) {
+      following(first: $first, after: $after) {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
         nodes {
           id
           login
