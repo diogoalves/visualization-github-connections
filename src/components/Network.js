@@ -9,10 +9,41 @@ import {
 } from 'react-vis-force';
 import { merge } from '../utils';
 
-class App extends Component {
-  handleClick = id => () => {
-    console.log(this.props);
-    console.log(`entrou ${id}`);
+class Network extends Component {
+  f = async (login, nextFollower, nextFollowing, client) => {
+    console.log(`entrou ${login}, ${nextFollower}, ${nextFollowing}}`);
+    const ret = await client.query({
+      query: MORECONNECTIONS_QUERY,
+      variables: { login, nextFollower, nextFollowing }
+    });
+
+    // const res = client.readQuery({
+    //   query: gql`
+    //     query User($login: String!) {
+    //       user(login: $login) {
+    //         followers {
+    //           nodes {
+    //             id
+    //             name
+    //             login
+    //             createdAt
+    //             avatarUrl
+    //           }
+    //         }
+    //       }
+    //     }
+    //   `,
+    //   variables: {
+    //     login,
+    //   },
+    // });
+
+    console.log(ret);
+    // console.log(res)
+  };
+
+  cF = (login, nextFollower, nextFollowing, client) => () => {
+    this.f(login, nextFollower, nextFollowing, client);
   };
 
   render() {
@@ -25,7 +56,7 @@ class App extends Component {
         }}
         fetchPolicy="cache-and-network"
       >
-        {({ loading, error, data, fetchMore }) => {
+        {({ loading, error, data, fetchMore, client }) => {
           if (loading) return 'Loading...';
           if (error) return `Error! ${error.message}`;
           const others = merge(
@@ -86,37 +117,49 @@ class App extends Component {
                 fill={`url(#avatar-${data.viewer.id})`}
                 node={{ id: data.viewer.login, radius: 10 }}
                 onClick={() => {
-                  const fetchFollowers =
-                    data.viewer.followers.pageInfo.hasNextPage;
-                  //const fetchFollowing = data.viewer.following.pageInfo.hasNextPage;
-                  if (fetchFollowers) {
-                    fetchMore({
-                      variables: {
-                        first: 1,
-                        after: data.viewer.followers.pageInfo.endCursor
-                      },
-                      updateQuery: (prev, { fetchMoreResult }) => {
-                        if (!fetchMoreResult) return prev;
-                        const ret = Object.assign({}, prev, {
-                          viewer: {
-                            ...prev.viewer,
-                            followers: {
-                              nodes: [
-                                ...prev.viewer.followers.nodes,
-                                ...fetchMoreResult.viewer.followers.nodes
-                              ],
-                              pageInfo:
-                                fetchMoreResult.viewer.followers.pageInfo,
-                              __typename:
-                                fetchMoreResult.viewer.followers.__typename
-                            }
-                          }
-                        });
-                        return ret;
-                      }
-                    });
+                  const node = data.viewer;
+                  const followersPageInfo = node.followers.pageInfo;
+                  const followingPageInfo = node.following.pageInfo;
+                  const hasMoreToFecth =
+                    followersPageInfo.hasNextPage ||
+                    followingPageInfo.hasMoreToFecth;
+                  if (hasMoreToFecth) {
+                    this.f(
+                      node.login,
+                      followersPageInfo.endCursor,
+                      followingPageInfo.endCursor,
+                      client
+                    );
                   }
-                  this.handleClick(data.viewer.id);
+                  // const fetchFollowers = data.viewer.followers.pageInfo.hasNextPage;
+                  //const fetchFollowing = data.viewer.following.pageInfo.hasNextPage;
+                  // if (fetchFollowers) {
+                  //   fetchMore({
+                  //     variables: {
+                  //       first: 1,
+                  //       after: data.viewer.followers.pageInfo.endCursor
+                  //     },
+                  //     updateQuery: (prev, { fetchMoreResult }) => {
+                  //       if (!fetchMoreResult) return prev;
+                  //       const ret = Object.assign({}, prev, {
+                  //         viewer: {
+                  //           ...prev.viewer,
+                  //           followers: {
+                  //             nodes: [
+                  //               ...prev.viewer.followers.nodes,
+                  //               ...fetchMoreResult.viewer.followers.nodes
+                  //             ],
+                  //             pageInfo:
+                  //               fetchMoreResult.viewer.followers.pageInfo,
+                  //             __typename:
+                  //               fetchMoreResult.viewer.followers.__typename
+                  //           }
+                  //         }
+                  //       });
+                  //       return ret;
+                  //     }
+                  //   });
+                  // }
                 }}
               />
 
@@ -125,7 +168,7 @@ class App extends Component {
                   key={node.id}
                   fill={`url(#avatar-${node.id})`}
                   node={{ ...node, id: node.login, radius: 5 }}
-                  onClick={this.handleClick(node.id)}
+                  onClick={this.cF(node.login, null, null, client)}
                 />
               ))}
 
@@ -192,4 +235,43 @@ export const NETWORK_QUERY = gql`
   }
 `;
 
-export default App;
+export const MORECONNECTIONS_QUERY = gql`
+  query MoreConnections(
+    $login: String!
+    $nextFollower: String
+    $nextFollowing: String
+  ) {
+    user(login: $login) {
+      followers(first: 1, after: $nextFollower) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          id
+          login
+          name
+          avatarUrl
+          createdAt
+          __typename
+        }
+      }
+      following(first: 1, after: $nextFollowing) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          id
+          login
+          name
+          avatarUrl
+          createdAt
+          __typename
+        }
+      }
+    }
+  }
+`;
+
+export default Network;

@@ -27,6 +27,7 @@ export const getAcessToken = (code, callback) => {
   fetch(`${OAUTH_ACCESTOKEN_URL}${code}`)
     .then(res => res.json())
     .then(json => {
+      console.log(json);
       saveToken(json.access_token);
       callback();
     });
