@@ -7,17 +7,7 @@ import {
   ForceGraphNode,
   ForceGraphLink
 } from 'react-vis-force';
-
-// function attachEvents(child) {
-//   return cloneElement(child, {
-//     onMouseDown: () => console.log(`clicked <${child.type.name} />`),
-//     onMouseOver: () => console.log(`hovered <${child.type.name} />`),
-//     onMouseOut: () => console.log(`blurred <${child.type.name} />`),
-//   });
-// }
-
-const merge = (a, b, key = 'id') =>
-  a.filter(elem => !b.find(subElem => subElem[key] === elem[key])).concat(b);
+import { merge } from '../utils';
 
 class App extends Component {
   handleClick = id => () => {
@@ -33,6 +23,7 @@ class App extends Component {
           first: 1,
           after: null
         }}
+        fetchPolicy="cache-and-network"
       >
         {({ loading, error, data, fetchMore }) => {
           if (loading) return 'Loading...';
@@ -95,43 +86,33 @@ class App extends Component {
                 fill={`url(#avatar-${data.viewer.id})`}
                 node={{ id: data.viewer.login, radius: 10 }}
                 onClick={() => {
-                  // fetchMore({
-                  //   variables: {
-                  //     offset: data.feed.length
-                  //   },
-                  //   updateQuery: (prev, { fetchMoreResult }) => {
-                  //     if (!fetchMoreResult) return prev;
-                  //     return Object.assign({}, prev, {
-                  //       feed: [...prev.feed, ...fetchMoreResult.feed]
-                  //     });
-                  //   }
-                  // })
-                  console.log(data);
                   const fetchFollowers =
                     data.viewer.followers.pageInfo.hasNextPage;
                   //const fetchFollowing = data.viewer.following.pageInfo.hasNextPage;
                   if (fetchFollowers) {
                     fetchMore({
                       variables: {
-                        first: 5,
+                        first: 1,
                         after: data.viewer.followers.pageInfo.endCursor
                       },
                       updateQuery: (prev, { fetchMoreResult }) => {
                         if (!fetchMoreResult) return prev;
-                        console.log(prev);
-                        console.log(fetchMoreResult);
-                        return Object.assign({}, prev, {
+                        const ret = Object.assign({}, prev, {
                           viewer: {
+                            ...prev.viewer,
                             followers: {
                               nodes: [
                                 ...prev.viewer.followers.nodes,
                                 ...fetchMoreResult.viewer.followers.nodes
                               ],
                               pageInfo:
-                                fetchMoreResult.viewer.followers.pageInfo
+                                fetchMoreResult.viewer.followers.pageInfo,
+                              __typename:
+                                fetchMoreResult.viewer.followers.__typename
                             }
                           }
                         });
+                        return ret;
                       }
                     });
                   }
@@ -174,10 +155,13 @@ export const NETWORK_QUERY = gql`
       name
       avatarUrl
       createdAt
+      __typename
       followers(first: $first, after: $after) {
+        __typename
         pageInfo {
           endCursor
           hasNextPage
+          __typename
         }
         nodes {
           id
@@ -185,12 +169,15 @@ export const NETWORK_QUERY = gql`
           name
           avatarUrl
           createdAt
+          __typename
         }
       }
       following(first: $first, after: $after) {
+        __typename
         pageInfo {
           endCursor
           hasNextPage
+          __typename
         }
         nodes {
           id
@@ -198,6 +185,7 @@ export const NETWORK_QUERY = gql`
           name
           avatarUrl
           createdAt
+          __typename
         }
       }
     }

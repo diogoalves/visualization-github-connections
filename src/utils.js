@@ -32,16 +32,5 @@ export const getAcessToken = (code, callback) => {
     });
 };
 
-/*
-  fetch(OAUTH_ACCESTOKEN_URL, {
-    method: 'POST',
-    body: JSON.stringify({ 
-      client_id: OAUTH_CLIENT_ID,
-      client_secret: 'acb91c27b1776fc7d86a7cbcca7ec9f9eeb43277',
-      code,
-      redirect_uri: OAUTH_REDIRECTURL
-    })
-  })
-    .then(console.log);
-
-*/
+export const merge = (a, b, key = 'id') =>
+  a.filter(elem => !b.find(subElem => subElem[key] === elem[key])).concat(b);
