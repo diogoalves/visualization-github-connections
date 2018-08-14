@@ -4,7 +4,7 @@ export const OAUTH_CLIENT_ID = 'f175d39cf1046d63399a';
 
 export const OAUTH_SCOPE = 'user:read';
 
-export const OAUTH_REDIRECTURL = 'https://4c5c8c04.ngrok.io/authenticated';
+export const OAUTH_REDIRECTURL = 'https://b028a40b.ngrok.io/authenticated';
 
 export const OAUTH_AUTHORIZATION_URL =
   'https://github.com/login/oauth/authorize';
