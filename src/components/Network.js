@@ -41,6 +41,20 @@ class Network extends Component {
                 <Avatar key={node.id} id={node.id} url={node.avatarUrl} />
               ))}
 
+              {data.viewer.following.nodes.map(node => {
+                if (node.following && node.following.nodes) {
+                  return node.following.nodes.map(subNode => (
+                    <Avatar
+                      key={subNode.id}
+                      id={subNode.id}
+                      url={subNode.avatarUrl}
+                    />
+                  ));
+                } else {
+                  return <div key={`avatar-${node.id}`}>{null}</div>;
+                }
+              })}
+
               <ForceGraphNode
                 key={data.viewer.id}
                 fill={`url(#avatar-${data.viewer.id})`}
@@ -81,6 +95,83 @@ class Network extends Component {
                   key={node.id}
                   fill={`url(#avatar-${node.id})`}
                   node={{ ...node, id: node.login, radius: 5 }}
+                  onClick={async () => {
+                    // const { data } = await client.query({
+                    //   query: MORECONNECTIONS_QUERY,
+                    //   variables: { login: node.login }
+                    // });
+
+                    // const ret = client.readFragment({
+                    //   id: `User:${node.id}`,
+                    //   fragment: gql`
+                    //     fragment myUser on User2 {
+                    //       id
+                    //       login
+                    //       name
+                    //       avatarUrl
+                    //       createdAt
+                    //       __typename
+                    //       following {
+                    //         nodes
+                    //       }
+                    //     }
+                    //   `,
+                    // });
+
+                    // client.writeFragment({
+                    //   id: `User:${node.id}`,
+                    //   fragment: gql`
+                    //     fragment myUser on User2 {
+                    //       id
+                    //       login
+                    //       name
+                    //       avatarUrl
+                    //       createdAt
+                    //       __typename
+                    //     }
+                    //   `,
+                    //   data: { ...ret,
+                    //     name: "zezim",
+                    //     following: { ...data.user.following }
+                    //   },
+                    // });
+
+                    const newQuery = gql`
+                      {
+                        viewer {
+                          id
+                          login
+                          name
+                          avatarUrl
+                          createdAt
+                          __typename
+                          following(first: 10) {
+                            __typename
+                            pageInfo {
+                              endCursor
+                              hasNextPage
+                              __typename
+                            }
+                            nodes {
+                              id
+                              login
+                              name
+                              avatarUrl
+                              createdAt
+                              __typename
+                            }
+                          }
+                        }
+                      }
+                    `;
+
+                    client.query({
+                      query: newQuery
+                    });
+
+                    //following: { ...data.user.following },
+                    console.log(data);
+                  }}
                 />
               ))}
 
@@ -94,6 +185,37 @@ class Network extends Component {
                   }}
                 />
               ))}
+
+              {data.viewer.following.nodes.map(node => {
+                if (node.following && node.following.nodes) {
+                  return node.following.nodes.map(subNode => (
+                    <ForceGraphNode
+                      key={subNode.id}
+                      fill={`url(#avatar-${subNode.id})`}
+                      node={{ ...subNode, id: subNode.login, radius: 5 }}
+                    />
+                  ));
+                } else {
+                  return <div key={`subnodes-${node.id}`}>{null}</div>;
+                }
+              })}
+
+              {data.viewer.following.nodes.map(node => {
+                if (node.following && node.following.nodes) {
+                  return node.following.nodes.map(subNode => (
+                    <ForceGraphLink
+                      key={`follwoing:${node.login}-${subNode.login}`}
+                      link={{
+                        source: node.login,
+                        target: subNode.login,
+                        value: 1
+                      }}
+                    />
+                  ));
+                } else {
+                  return <div key={`sublinks-${node.id}`}>{null}</div>;
+                }
+              })}
             </InteractiveForceGraph>
           );
         }}
@@ -132,13 +254,10 @@ export const NETWORK_QUERY = gql`
 `;
 
 export const MORECONNECTIONS_QUERY = gql`
-  query MoreConnections(
-    $login: String!
-    $nextFollower: String
-    $nextFollowing: String
-  ) {
+  query MoreConnections($login: String!) {
     user(login: $login) {
-      followers(first: 1, after: $nextFollower) {
+      __typename
+      following(first: 1) {
         pageInfo {
           hasNextPage
           endCursor
@@ -150,34 +269,6 @@ export const MORECONNECTIONS_QUERY = gql`
           avatarUrl
           createdAt
           __typename
-        }
-      }
-      following(first: 1, after: $nextFollowing) {
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-        nodes {
-          id
-          login
-          name
-          avatarUrl
-          createdAt
-          __typename
-          following(first: 1) {
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-            nodes {
-              id
-              login
-              name
-              avatarUrl
-              createdAt
-              __typename
-            }
-          }
         }
       }
     }
