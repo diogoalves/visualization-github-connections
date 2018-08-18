@@ -42,20 +42,18 @@ class Network extends Component {
     });
     const user = data.data.user;
     if (user && user.following && user.following.nodes) {
-      const nodesToAdd = [];
-      const linksToAdd = [];
-      user.following.nodes.map(node => {
-        const found = nodes.find(e => e.id === node.id);
-        if (!found) {
-          nodesToAdd.push({
-            id: node.login,
-            label: node.name,
-            shape: 'circularImage',
-            image: node.avatarUrl
-          });
-          linksToAdd.push({ from: id, to: node.login });
-        }
-      });
+      const nodesToAdd = user.following.nodes
+        .filter(e => !nodes.find(se => se.id === e.id))
+        .map(node => ({
+          id: node.login,
+          label: node.name,
+          shape: 'circularImage',
+          image: node.avatarUrl
+        }));
+      const linksToAdd = user.following.nodes.map(node => ({
+        from: id,
+        to: node.login
+      }));
       this.setState(state => ({
         nodes: [...state.nodes, ...nodesToAdd],
         edges: [...state.edges, ...linksToAdd]
