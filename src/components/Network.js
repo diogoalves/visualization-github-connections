@@ -1,29 +1,120 @@
 import React, { Component } from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import './demo-styles.css';
-import { InteractiveForceGraph, ForceGraphNode } from 'react-vis-force';
-import Node from './Node';
+import Graph from 'react-graph-vis';
+
+const options = {
+  layout: {
+    hierarchical: false
+  },
+  edges: {
+    color: '#000000'
+  }
+};
 
 class Network extends Component {
+  state = {
+    nodes: [],
+    edges: [],
+    initialized: false
+  };
+
+  init = data => {
+    this.setState(state => ({
+      ...state,
+      nodes: [
+        {
+          id: data.viewer.login,
+          label: data.viewer.name,
+          shape: 'circularImage',
+          image: data.viewer.avatarUrl
+        }
+      ],
+      initialized: true
+    }));
+  };
+
+  handleClick = async (id, client) => {
+    const { nodes } = this.state;
+    const data = await client.query({
+      query: USER_QUERY,
+      variables: { login: id }
+    });
+    const user = data.data.user;
+    if (user && user.following && user.following.nodes) {
+      const nodesToAdd = [];
+      const linksToAdd = [];
+      user.following.nodes.map(node => {
+        const found = nodes.find(e => e.id === node.id);
+        if (!found) {
+          nodesToAdd.push({
+            id: node.login,
+            label: node.name,
+            shape: 'circularImage',
+            image: node.avatarUrl
+          });
+          linksToAdd.push({ from: id, to: node.login });
+        }
+      });
+      this.setState(state => ({
+        nodes: [...state.nodes, ...nodesToAdd],
+        edges: [...state.edges, ...linksToAdd]
+      }));
+    }
+  };
+
   render() {
+    const createEvents = client => ({
+      click: ({ nodes }) =>
+        nodes[0] ? this.handleClick(nodes[0], client) : false
+    });
+
     return (
-      <Query query={ME_QUERY} fetchPolicy="cache-and-network">
+      <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
         {({ loading, error, data, fetchMore, client }) => {
           if (loading) return 'Loading...1';
           if (error) return `Error1! ${error.message}`;
+          if (!this.state.initialized) {
+            this.init(data);
+            return false;
+          }
 
-          return <Node login={data.viewer.login} />;
+          return (
+            <Graph
+              graph={this.state}
+              options={options}
+              events={createEvents(client)}
+              style={{ height: '640px' }}
+            />
+          );
         }}
       </Query>
     );
   }
 }
 
-const ME_QUERY = gql`
+const ROOT_QUERY = gql`
   query {
     viewer {
+      id
+      name
+      avatarUrl
       login
+    }
+  }
+`;
+
+export const USER_QUERY = gql`
+  query node($login: String!) {
+    user(login: $login) {
+      following(first: 2) {
+        nodes {
+          id
+          name
+          login
+          avatarUrl
+        }
+      }
     }
   }
 `;
