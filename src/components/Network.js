@@ -1,60 +1,12 @@
 import React, { Component } from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import Graph from 'react-graph-vis';
-
-var options = {
-  width: '100%',
-  height: '700px',
-  navigation: true,
-  configurePhysics: false,
-  smoothCurves: true,
-  edges: {
-    style: 'arrow',
-    color: {
-      highlight: 'red'
-    }
-  },
-  hierarchicalLayout: false,
-  stabilizationIterations: 5000,
-  stabilize: true,
-  physics: {
-    barnesHut: {
-      enabled: true,
-      gravitationalConstant: -5000,
-      centralGravity: 0,
-      springLength: 30,
-      springConstant: 0.005,
-      damping: 0.09
-    }
-  },
-  keyboard: true
-};
-
-const options2 = {
-  stabilizationIterations: 5000,
-  layout: {
-    hierarchical: false
-  },
-  edges: {
-    color: '#000000',
-    width: 0.15,
-    smooth: {
-      type: 'continuous'
-    }
-  },
-  physics: {
-    stabilization: true
-  },
-  interaction: {
-    hideEdgesOnDrag: true
-  }
-};
+import { ForceGraph2D } from 'react-force-graph';
 
 class Network extends Component {
   state = {
     nodes: [],
-    edges: [],
+    links: [],
     initialized: false
   };
 
@@ -64,8 +16,7 @@ class Network extends Component {
       nodes: [
         {
           id: data.viewer.login,
-          label: data.viewer.name,
-          shape: 'circularImage',
+          name: data.viewer.name,
           image: data.viewer.avatarUrl
         }
       ],
@@ -91,11 +42,8 @@ class Network extends Component {
   };
 
   handleClick = async (id, client) => {
+    console.log(id);
     const { nodes } = this.state;
-    // const data = await client.query({
-    //   query: USER_QUERY,
-    //   variables: { login: id, after: null }
-    // });
     const data = await this.fetchAllConnections(id, client);
 
     if (data) {
@@ -103,49 +51,57 @@ class Network extends Component {
         .filter(e => !nodes.find(se => se.id === e.id))
         .map(node => ({
           id: node.login,
-          label: node.name,
-          shape: 'circularImage',
+          name: node.name,
           image: node.avatarUrl
         }));
       const linksToAdd = data.map(node => ({
-        from: id,
-        to: node.login
+        source: id,
+        target: node.login
       }));
       this.setState(state => ({
         nodes: [...state.nodes, ...nodesToAdd],
-        edges: [...state.edges, ...linksToAdd]
+        links: [...state.links, ...linksToAdd]
       }));
     }
   };
 
-  render() {
-    const createEvents = client => ({
-      click: ({ nodes }) =>
-        nodes[0] ? this.handleClick(nodes[0], client) : false
-    });
+  createAvatar = (node, ctx) => {
+    const { x, y, image } = node;
+    const img = new Image();
+    img.src = image;
 
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, 2 * Math.PI, false);
+    ctx.closePath();
+    ctx.lineWidth = 0.3;
+    ctx.stroke();
+    ctx.save();
+    ctx.clip();
+    ctx.drawImage(img, x - 5, y - 5, 10, 10);
+    ctx.restore();
+  };
+
+  render() {
     return (
       <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
         {({ loading, error, data, fetchMore, client }) => {
-          if (loading) return 'Loading...1';
-          if (error) return `Error1! ${error.message}`;
+          if (loading) return 'Loading...';
+          if (error) return `Error! ${error.message}`;
           if (!this.state.initialized) {
             this.init(data);
             return false;
           }
-
+          console.log(
+            'Nodes: ' +
+              this.state.nodes.length +
+              '  Edges: ' +
+              this.state.links.length
+          );
           return (
-            <Graph
-              graph={this.state}
-              options={options}
-              events={createEvents(client)}
-              style={{
-                position: 'absolute',
-                top: 100,
-                bottom: 0,
-                left: 0,
-                right: 0
-              }}
+            <ForceGraph2D
+              graphData={this.state}
+              onNodeClick={node => this.handleClick(node.id, client)}
+              nodeCanvasObject={this.createAvatar}
             />
           );
         }}
