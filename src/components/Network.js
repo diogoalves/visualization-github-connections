@@ -33,7 +33,6 @@ class Network extends Component {
         query: USER_QUERY,
         variables: { login, after }
       });
-      console.log(data);
       hasNext = data.data.user.following.pageInfo.hasNextPage;
       after = data.data.user.following.pageInfo.endCursor;
       ret = [...ret, ...data.data.user.following.nodes];
@@ -42,13 +41,11 @@ class Network extends Component {
   };
 
   handleClick = async (id, client) => {
-    console.log(id);
     const { nodes } = this.state;
     const data = await this.fetchAllConnections(id, client);
-
     if (data) {
       const nodesToAdd = data
-        .filter(e => !nodes.find(se => se.id === e.id))
+        .filter(e => !nodes.find(se => se.id === e.login))
         .map(node => ({
           id: node.login,
           name: node.name,
@@ -92,16 +89,17 @@ class Network extends Component {
             return false;
           }
           console.log(
-            'Nodes: ' +
-              this.state.nodes.length +
-              '  Edges: ' +
+            `Nodes: ${this.state.nodes.length} Links: ${
               this.state.links.length
+            }`
           );
           return (
             <ForceGraph2D
               graphData={this.state}
               onNodeClick={node => this.handleClick(node.id, client)}
               nodeCanvasObject={this.createAvatar}
+              linkDirectionalArrowLength={3.5}
+              linkDirectionalArrowRelPos={1}
             />
           );
         }}
