@@ -88,11 +88,7 @@ class Network extends Component {
             this.init(data);
             return false;
           }
-          console.log(
-            `Nodes: ${this.state.nodes.length} Links: ${
-              this.state.links.length
-            }`
-          );
+          console.log(this.state);
           return (
             <ForceGraph2D
               graphData={this.state}
@@ -100,6 +96,8 @@ class Network extends Component {
               nodeCanvasObject={this.createAvatar}
               linkDirectionalArrowLength={3.5}
               linkDirectionalArrowRelPos={1}
+              cooldownTime={5000}
+              d3VelocityDecay={0.1}
             />
           );
         }}
