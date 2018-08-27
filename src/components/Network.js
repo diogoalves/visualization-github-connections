@@ -3,6 +3,11 @@ import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import { ForceGraph2D } from 'react-force-graph';
 
+//TODO cache avatar image object
+//TODO button to center on user icon
+//TODO variable size/val in order of user totalConnections
+//TODO implement shortest path between two nodes in screen
+//TODO present some statitics in drawer (#nodes, #links)
 class Network extends Component {
   state = {
     nodes: [],
@@ -88,7 +93,6 @@ class Network extends Component {
             this.init(data);
             return false;
           }
-          console.log(this.state);
           return (
             <ForceGraph2D
               graphData={this.state}
