@@ -7,7 +7,7 @@ const querystring = require('querystring');
 const request = require('request');
 require('dotenv').load();
 
-// app.use(express.static(path.join(__dirname, '/build')));
+app.use(express.static(path.join(__dirname, '/')));
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -30,5 +30,8 @@ app.get('/access_token', (req, res) => {
     res.send(body)
   });
 });
+
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, '/', 'index.html')));
+
 
 http.listen(4000, () => console.log('listening on *:4000'));

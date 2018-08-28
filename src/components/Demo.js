@@ -213,8 +213,9 @@ class Demo extends Component {
           <DialogTitle id="simple-dialog-title">Warning</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              We preloaded a demo data. In order to get your data you should
-              fist login with your Github account.
+              This is a navigation demo with preloaded data. In order to get
+              your connectins data you should first login with your Github
+              account.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
